@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+        }
+
+        .message {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 6px;
+            background-color: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        @media (max-width: 600px) {
+            .form-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+
+        label {
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1em;
+            min-width: 0;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        button {
+            padding: 12px 24px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-size: 1em;
+        }
+
+        form button {
+            background-color: #2ecc71;
+            color: white;
+            width: auto;
+            min-width: 140px;
+        }
+
+        form button:hover {
+            background-color: #27ae60;
+            transform: translateY(-1px);
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin: 20px 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            min-width: 600px;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background-color: #3498db;
+            color: white;
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.9em;
+            white-space: nowrap;
+        }
+
+        tr:hover {
+            background-color: #f5f8fa;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .actions button {
+            padding: 8px 16px;
+            font-size: 0.9em;
+        }
+
+        .actions button:first-child {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .actions button:last-child {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .expanded-row {
+            display: none;
+            background-color: #f8f9fa;
+        }
+
+        .expanded-row td {
+            padding: 15px;
+        }
+
+        .expanded-row a {
+            color: #3498db;
+            text-decoration: none;
+            word-break: break-all;
+        }
+
+        .arrow {
+            display: inline-block;
+            margin-right: 5px;
+            transition: transform 0.3s ease;
+        }
+
+        .expanded .arrow {
+            transform: rotate(90deg);
+        }
+
+        .url-preview {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+            word-break: break-all;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            body {
+                padding: 10px;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .actions button {
+                width: 100%;
+            }
+
+            th, td {
+                padding: 10px;
+                font-size: 0.9em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.5rem;
+                margin-bottom: 20px;
+            }
+
+            .message {
+                font-size: 0.9em;
+            }
+
+            form {
+                padding: 15px;
+            }
+
+            input[type="text"], button {
+                padding: 10px;
+            }
+        }
+
+        @media screen and (max-width: 600px) {
+            .table-container {
+                margin: 10px 0;
+            }
+
+            table {
+                min-width: unset;
+            }
+
+            table, thead, tbody, th, td, tr {
+                display: block;
+            }
+
+            thead tr {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+
+            tr {
+                margin-bottom: 15px;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                background: white;
+            }
+
+            td {
+                position: relative;
+                padding: 12px 12px 12px 50%;
+                border: none;
+                border-bottom: 1px solid #eee;
+                min-height: 45px;
+                word-break: break-word;
+            }
+
+            td[data-label="RedirectURL"] {
+                white-space: normal !important;
+                max-width: none !important;
+                overflow: visible !important;
+                text-overflow: clip !important;
+                padding-right: 12px;
+            }
+
+            td[data-label="Actions"] {
+                padding-left: 12px;
+            }
+
+            td[data-label="Actions"]:before {
+                position: static;
+                display: block;
+                transform: none;
+                margin-bottom: 10px;
+            }
+
+            .actions {
+                padding: 12px;
+                justify-content: flex-start;
+                gap: 10px;
+                flex-direction: column;
+            }
+
+            .actions button {
+                width: 100%;
+                min-width: 100px;
+                margin: 0;
+                padding: 10px;
+            }
+
+            td:last-child {
+                border-bottom: none;
+            }
+
+            td:before {
+                position: absolute;
+                left: 12px;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 45%;
+                padding-right: 10px;
+                white-space: nowrap;
+                font-weight: bold;
+                content: attr(data-label);
+            }
+
+            .actions {
+                padding: 12px;
+                justify-content: flex-start;
+                gap: 10px;
+            }
+
+            .actions button {
+                min-width: 100px;
+                margin: 0;
+            }
+
+            .expanded-row td {
+                padding: 12px;
+            }
+
+            .expanded-row td:before {
+                display: none;
+            }
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .logout-button {
+            padding: 10px 20px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .logout-button:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>URL Shortener</h1>
+        <a href="/user/logout" class="logout-button">Logout</a>
+    </div>
+    <% if(locals.message) { %>
+    <div class="message"><%= message %></div>
+    <% } %>
+    <% if(locals.id) { %>
+    <div class="url-preview">
+        <strong>URL Generated:</strong> 
+        <a href="http://localhost:8080/url/<%= id %>" target="_blank">
+            http://localhost:8080/url/<%= id %>
+        </a>
+    </div>
+    <% } %> 
+    <form method="post" action="/url">
+        <div class="form-row">
+            <input type="text" name="url" placeholder="Enter your URL (e.g., https://example.com)" required>
+            <button type="submit">Generate URL</button>
+        </div>
+    </form>
+    <% if (locals.urls) { %>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>S. No</th>
+                    <th>ShortId</th>
+                    <th>RedirectURL</th>
+                    <th>Clicks</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% urls.forEach((url, index) => { %>
+                    <tr class="clickable" onclick="toggleRow(this, '<%= url.shortId %>')">
+                        <td data-label="S. No"><span class="arrow">▶</span><%= index + 1 %></td>
+                        <td data-label="ShortId"><%= url.shortId %></td>
+                        <td data-label="RedirectURL">
+                            <%= url.redirectURL %>
+                        </td>
+                        <td data-label="Clicks"><%= url.visitHistory.length %></td>
+                        <td data-label="Actions" class="actions">
+                            <button onclick="updateUrl('<%= url.shortId %>'); event.stopPropagation();" class="update-btn">Update</button>
+                            <button onclick="deleteUrl('<%= url.shortId %>'); event.stopPropagation();" class="delete-btn">Delete</button>
+                        </td>
+                    </tr>
+                    <tr class="expanded-row">
+                        <td colspan="5">
+                            <strong>Full URL:</strong> 
+                            <a href="http://localhost:8080/url/<%= url.shortId %>" target="_blank">
+                                http://localhost:8080/url/<%= url.shortId %>
+                            </a>
+                            <br>
+                            <strong>Original URL:</strong> 
+                            <a href="<%= url.redirectURL %>" target="_blank">
+                                <%= url.redirectURL %>
+                            </a>
+                        </td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+    <% } %>
+    <script>
+        async function updateUrl(shortId) {
+            const newUrl = prompt('Enter new URL:');
+            if (newUrl) {
+                try {
+                    const response = await fetch(`/url/${shortId}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ newUrl })
+                    });
+                    if (response.ok) {
+                        window.location.reload();
+                    }
+                } catch (error) {
+                    console.error('Error updating URL:', error);
+                }
+            }
+        }
+
+        async function deleteUrl(shortId) {
+            if (confirm('Are you sure you want to delete this URL?')) {
+                try {
+                    const response = await fetch(`/url/${shortId}`, {
+                        method: 'DELETE'
+                    });
+                    if (response.ok) {
+                        window.location.reload();
+                    }
+                } catch (error) {
+                    console.error('Error deleting URL:', error);
+                }
+            }
+        }
+
+        function toggleRow(row, shortId) {
+            const expandedRow = row.nextElementSibling;
+            const arrow = row.querySelector('.arrow');
+            
+            if (expandedRow.style.display === 'none' || expandedRow.style.display === '') {
+                expandedRow.style.display = 'table-row';
+                row.classList.add('expanded');
+            } else {
+                expandedRow.style.display = 'none';
+                row.classList.remove('expanded');
+            }
+        }
+    </script>
+</body>
+</html>
